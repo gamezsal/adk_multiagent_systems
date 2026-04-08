@@ -20,7 +20,7 @@ load_dotenv()
 
 
 
-RETRY_OPTIONS = types.HttpRetryOptions(initial_delay=1, max_delay=3, attempts=30)
+RETRY_OPTIONS = types.HttpRetryOptions(initial_delay=1, max_delay=3, attempts=0)
 
 # Tools 
 

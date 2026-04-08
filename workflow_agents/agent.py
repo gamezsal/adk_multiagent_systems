@@ -31,7 +31,7 @@ load_dotenv()
 model_name = os.getenv("MODEL", "gemini-2.5-flash")
 print(model_name)
 
-RETRY_OPTIONS = types.HttpRetryOptions(initial_delay=1, max_delay=3, attempts=30)
+RETRY_OPTIONS = types.HttpRetryOptions(initial_delay=1, max_delay=3, attempts=0)
 
 # Tools
 

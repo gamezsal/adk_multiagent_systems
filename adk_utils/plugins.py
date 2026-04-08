@@ -76,20 +76,17 @@ class Graceful429Plugin:
                 )
         
         # Patch targets
+        # Target collection deeply
         targets = []
-        
-        # Determine if this is a single agent or a multi-agent (e.g., SequentialAgent)
-        if hasattr(agent, 'sub_agents') and agent.sub_agents:
-            for sub_agent in agent.sub_agents:
-                if hasattr(sub_agent, 'model') and sub_agent.model:
-                    targets.append(sub_agent.model)
-                    if hasattr(sub_agent.model, 'client'):
-                        targets.append(sub_agent.model.client)
-        else:
-            if hasattr(agent, 'model') and agent.model:
-                targets.append(agent.model)
-                if hasattr(agent.model, 'client'):
-                    targets.append(agent.model.client)
+        def collect_models(curr_agent):
+            if hasattr(curr_agent, 'model') and curr_agent.model:
+                targets.append(curr_agent.model)
+                if hasattr(curr_agent.model, 'client'):
+                    targets.append(curr_agent.model.client)
+            if hasattr(curr_agent, 'sub_agents') and curr_agent.sub_agents:
+                for sub in curr_agent.sub_agents:
+                    collect_models(sub)
+        collect_models(agent)
         
         methods = ['generate_content', 'generate_content_async', 'call', 'invoke']
         for target in targets:
@@ -103,11 +100,13 @@ class Graceful429Plugin:
     def apply_429_interceptor(self, agent):
         '''Surgically wraps the agent's model to catch real 429s and yield the fallback robustly.'''
         targets = []
-        if hasattr(agent, 'sub_agents') and agent.sub_agents:
-            for sub_agent in agent.sub_agents:
-                if hasattr(sub_agent, 'model'): targets.append(sub_agent.model)
-        else:
-            if hasattr(agent, 'model'): targets.append(agent.model)
+        def collect_models(curr_agent):
+            if hasattr(curr_agent, 'model') and curr_agent.model:
+                targets.append(curr_agent.model)
+            if hasattr(curr_agent, 'sub_agents') and curr_agent.sub_agents:
+                for sub in curr_agent.sub_agents:
+                    collect_models(sub)
+        collect_models(agent)
 
         for target in targets:
             if not hasattr(target, 'generate_content_async'):
