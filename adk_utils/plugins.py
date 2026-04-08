@@ -68,7 +68,7 @@ class Graceful429Plugin:
                 fallback = self._get_fallback_text(request_contents)
                 
                 # Return the fallback response directly to satisfy the test
-                return LlmResponse(
+                yield LlmResponse(
                     content=types.Content(
                         role="model", 
                         parts=[types.Part.from_text(text=fallback)]
@@ -116,13 +116,14 @@ class Graceful429Plugin:
             
             async def wrapped_429_failover(*args, **kwargs):
                 try:
-                    return await original_method(*args, **kwargs)
+                    async for result in original_method(*args, **kwargs):
+                        yield result
                 except Exception as e:
                     if "RESOURCE_EXHAUSTED" in str(e) or "429" in str(e):
                         print(f"\n[PLUGIN TRIGGERED] Caught real 429 Error. Returning Graceful Fallback.")
                         request_contents = args[0] if len(args) > 0 else kwargs
                         fallback = self._get_fallback_text(request_contents)
-                        return LlmResponse(
+                        yield LlmResponse(
                             content=types.Content(
                                 role="model", 
                                 parts=[types.Part.from_text(text=fallback)]
