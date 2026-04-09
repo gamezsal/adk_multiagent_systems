@@ -42,6 +42,13 @@ MODEL=gemini-2.5-flash
 
 _(Note: The codebase now intelligently falls back to `gemini-2.5-flash` natively to prevent Pydantic validation crashes during runtime, but explicitly defining your API key is mandatory)._
 
-### 3. Launching
+### 3. API Rate Limits & Billing Setup
+
+**IMPORTANT**: Because this `workflow_agents` project extensively orchestrates multiple LLMs simultaneously via `ParallelAgent` and rapidly fires iterative requests via `LoopAgent` with up to 5 iterations, it heavily consumes API calls. 
+
+Running this cleanly **requires a Gemini Tier 1 Billing Account (Pay-As-You-Go)**. 
+If you attempt to run this on the Google Free Tier (which limits you to 5 requests per minute), the underlying Google genai SDK will encounter `429 RESOURCE_EXHAUSTED` errors. While it will auto-retry and gracefully pause for 60 seconds every time it hits the quota limits, large workflows like this will take many minutes to complete. Upgrading to Tier 1 instantly solves this wait time.
+
+### 4. Launching
 
 You can run any of these orchestrated agents natively via the ADK web interface. Navigate to the agent's folder structure through your ADK dashboard or execute standard Python triggers natively.
