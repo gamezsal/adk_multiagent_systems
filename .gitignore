@@ -5,3 +5,4 @@ __pycache__/
 .adk/
 *.log
 .DS_Store
+movie_pitches/*.txt
